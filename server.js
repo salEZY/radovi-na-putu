@@ -1,8 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 
 const connectDb  = require('./utils/db')
-const PORT = process.env.PORT || 5000
 
 const app = express()
 connectDb()
@@ -14,6 +14,6 @@ app.get('/', (req, res) => {
   res.send('U svakom trenutku proverite koje ulice su zatvorene!')
 })
 
-app.listen(PORT, () => {
-  console.log(`Server started on port: ${PORT}!`)
+app.listen(process.env.PORT, () => {
+  console.log(`Server started on port: ${process.env.PORT}!`)
 })
