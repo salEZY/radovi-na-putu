@@ -6,9 +6,11 @@ const connectDb  = require('./utils/db')
 
 const app = express()
 connectDb()
+app.use(express.json({ extended: false }))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.use('/user', require('./routes/user'))
 
 app.get('/', (req, res) => {
   res.send('U svakom trenutku proverite koje ulice su zatvorene!')
