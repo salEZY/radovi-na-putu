@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const passport = require('passport')
 
 const connectDb = require('./utils/db')
+require('./utils/passport')(passport)
 
 const app = express()
 connectDb()
