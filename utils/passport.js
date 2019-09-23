@@ -1,5 +1,5 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-const mongoose = require('mongoose')
+const { googleClientID, googleClientSecret } = require('./config')
 
 // Load user model
 const GoogleUser = require('../models/Google')
@@ -8,8 +8,8 @@ module.exports = function(passport) {
   passport.use(
     new GoogleStrategy(
       {
-        clientID: 'TODO', // TODO
-        clientSecret: 'TODO', // TODO
+        clientID: googleClientID,
+        clientSecret: googleClientSecret,
         callbackURL: '/google/callback',
         proxy: true
       },
