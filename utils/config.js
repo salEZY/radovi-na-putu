@@ -1,8 +1,7 @@
 const URI = process.env.URI
 const JWT = process.env.JWT
-const googleClientID =
-  '499443455802-hh9el9deflr634cghrnqjkoja9so6d9e.apps.googleusercontent.com'
-const googleClientSecret = 'blabla'
+const googleClientID = process.env.CLIENTID
+const googleClientSecret = process.env.CLIENTSECRET
 
 module.exports = {
   URI,
