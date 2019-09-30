@@ -23,6 +23,17 @@ app.get('/', (req, res) => {
   res.send('U svakom trenutku proverite koje ulice su zatvorene!')
 })
 
+// Show all closed streets
+app.get('/closed-streets', async (req, res) => {
+  try {
+    const streets = await Street.find()
+    res.json(streets)
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).send('Server Error!')
+  }
+})
+
 // io.on('connection', socket => {
 //   console.log('da')
 //   socket.on('street add', street => {
