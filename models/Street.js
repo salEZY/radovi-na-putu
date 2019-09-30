@@ -23,6 +23,10 @@ const StreetSchema = new mongoose.Schema({
   endLon: {
     type: Number,
     required: true
+  },
+  user: {
+    type: String,
+    required: true
   }
 })
 
