@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 })
 
 // Show all closed streets
-app.get('/streets', async (req, res) => {
+app.get('/streets/', async (req, res) => {
   try {
     const streets = await Street.find()
     res.json(streets)
@@ -37,7 +37,7 @@ app.get('/streets', async (req, res) => {
 })
 // Add a closed street
 app.post(
-  '/add',
+  '/streets/',
   [
     auth,
     [
@@ -76,7 +76,7 @@ app.post(
     }
 
     try {
-      let street = await Street.findOne({ user: req.user.id })
+      let street = await Street.findOne({ name: req.body.name })
 
       if (street) {
         return res
