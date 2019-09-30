@@ -21,4 +21,4 @@ const GoogleSchema = new mongoose.Schema({
   }
 })
 
-module.exports = User = mongoose.model('googleUsers', GoogleSchema)
+module.exports = Google = mongoose.model('googleUsers', GoogleSchema)
