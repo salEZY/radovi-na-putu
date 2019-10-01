@@ -35,6 +35,7 @@ app.get('/streets/', async (req, res) => {
     res.status(500).send('Server Error!')
   }
 })
+
 // Add a closed street
 app.post(
   '/streets/',
@@ -64,7 +65,10 @@ app.post(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { name, description, startLat, startLon, endLat, endLon } = req.body
+    let { name, description, startLat, startLon, endLat, endLon } = req.body
+
+    name = name.replace(/[0-9]/g, '').trim()
+
     const closedStreet = {
       user: req.user.id,
       name,
@@ -76,8 +80,8 @@ app.post(
     }
 
     try {
-      let street = await Street.findOne({ name: req.body.name })
-
+      let street = await Street.findOne({ name })
+      
       if (street) {
         return res
           .status(400)
@@ -95,9 +99,8 @@ app.post(
 )
 
 // io.on('connection', socket => {
-//   console.log('da')
 //   socket.on('street add', street => {
-//     io.sockets.emit(`Ulica ${street.name} dodata u spisak zatvorenih ulica!`)
+//     io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
 //   })
 // })
 
