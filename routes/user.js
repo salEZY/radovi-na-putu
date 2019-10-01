@@ -29,7 +29,13 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
-    const { name, email, password } = req.body
+    const { name, email, password, password2 } = req.body
+
+    if (password !== password2) {
+      return res
+          .status(400)
+          .json({ errors: [{ msg: 'Passwords do not match' }] })
+    }
 
     try {
       // Check if user exists
