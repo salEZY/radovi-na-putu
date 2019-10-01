@@ -65,7 +65,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    let { name, description, startLat, startLon, endLat, endLon } = req.body
+    let { name, description, startLat, startLon, endLat, endLon, closed } = req.body
 
     name = name.replace(/[0-9]/g, '').trim()
 
@@ -76,7 +76,8 @@ app.post(
       startLat,
       startLon,
       endLat,
-      endLon
+      endLon,
+      closed
     }
 
     try {
@@ -90,11 +91,12 @@ app.post(
 
       street = new Street(closedStreet)
       await street.save()
-      io.on('connection', socket => {
-        socket.on('street add', street => {
-          io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
-        })
-      })
+      // io.on('connection', socket => {
+      //   socket.on('street add', street => {
+      //     io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
+      //   }) 
+      // })
+      res.send(`${street.name} dodat!`)
     } catch (err) {
       console.error(err.message)
       res.status(500).send('Server Error!')
