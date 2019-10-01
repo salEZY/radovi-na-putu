@@ -90,19 +90,17 @@ app.post(
 
       street = new Street(closedStreet)
       await street.save()
-      res.send(`Ulica ${street.name} je ubacena u bazu podataka!`)
+      io.on('connection', socket => {
+        socket.on('street add', street => {
+          io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
+        })
+      })
     } catch (err) {
       console.error(err.message)
       res.status(500).send('Server Error!')
     }
   }
 )
-
-// io.on('connection', socket => {
-//   socket.on('street add', street => {
-//     io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
-//   })
-// })
 
 http.listen(process.env.PORT, () => {
   console.log(`Server started on port: ${process.env.PORT}!`)
