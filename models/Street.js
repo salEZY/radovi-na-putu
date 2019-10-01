@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const StreetSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   description: {
     type: String
@@ -23,6 +24,10 @@ const StreetSchema = new mongoose.Schema({
   endLon: {
     type: Number,
     required: true
+  },
+  closed: {
+    type: Boolean,
+    default: true
   },
   user: {
     type: String,
