@@ -12,14 +12,14 @@ const createMailOptions = (email, type, info) => {
       return {
         ...mailOptions,
         subject: 'Uspesno ste registrovani',
-        text:
-          'Dobrodošli! Prijavom na aplikaciju mozete prijavljivati zatvorene ulice.'
+        html:
+          '<h1 style="color: teal;margin-bottom: 10px;">Radovi Na Putu</h1><p>Dobrodošli! Prijavom na aplikaciju mozete prijavljivati zatvorene ulice.</p>'
       }
     case 'reset':
       return {
         ...mailOptions,
         subject: 'Promena šifre!',
-        text: `Vaša trenutna šifra je ${info}. Molimo da je promenite u aplikaciji`
+        html: `<h1 style="color: teal;margin-bottom: 10px;">Radovi Na Putu</h1><p>Vaša trenutna šifra je ${info}. Molimo da je promenite u aplikaciji</p>`
       }
     default:
       return null

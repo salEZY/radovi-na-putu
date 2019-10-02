@@ -22,6 +22,10 @@ router.post(
     check(
       'password',
       'Please enter a password with 6 or more characters'
+    ).isLength({ min: 6 }),
+    check(
+      'password2',
+      'Please re-enter the password with 6 or more characters'
     ).isLength({ min: 6 })
   ],
   async (req, res) => {
