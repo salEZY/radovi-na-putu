@@ -42,9 +42,14 @@ const sendEmail = (email, type, info) => {
   })
 }
 
-const saltThenHash = async password => {
-  const salt = await bcrypt.genSalt(10)
-  user.password = await bcrypt.hash(password, salt)
+const saltThenHash = async (user, password) => {
+  try {
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(password, salt)
+  } catch (err) {
+    console.log(err.message)
+    res.status(500).send('Server error!')
+  }
 }
 
 module.exports = {

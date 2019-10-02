@@ -135,21 +135,26 @@ router.post(
 router.put('/reset-password', async (req, res) => {
   const email = req.body.email
 
-  const user = await User.findOne({ email })
+  try {
+    const user = await User.findOne({ email })
 
-  if (!user) {
-    return res
-      .status(400)
-      .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim mail-om' }] })
+    if (!user) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim mail-om' }] })
+    }
+
+    const newPass = Math.floor(Math.random() * 10000000).toString()
+    sendEmail(user.email, 'reset', newPass)
+
+    saltThenHash(newPass)
+
+    await user.save()
+    res.send(`Nov password vam je poslat na adresu: ${user.email}`)
+  } catch (err) {
+    console.log(err.message)
+    res.status(500).send('Server error!')
   }
-
-  const newPass = Math.floor(Math.random() * 10000000).toString()
-  sendEmail(user.email, 'reset', newPass)
-
-  saltThenHash(newPass)
-
-  await user.save()
-  res.send(`Nov password vam je poslat na adresu: ${user.email}`)
 })
 
 // Change password
@@ -167,21 +172,17 @@ router.put('/change-password', auth, async (req, res) => {
       .status(400)
       .json({ errors: [{ msg: 'Molimo unesite novu lozinku' }] })
   }
+  try {
+    const user = await User.findById({ _id: req.user.id })
 
-  const user = await User.findOne({ email })
+    saltThenHash(user, newPassword)
 
-  const isMatch = await bcrypt.compare(password, user.password)
-
-  if (!isMatch) {
-    return res.status(400).json({
-      errors: [{ msg: 'Uneli ste pogresnu lozinku' }]
-    })
+    await user.save()
+    res.send(`${user.name} uspesno ste promenili lozinku!`)
+  } catch (err) {
+    console.log(err.message)
+    res.status(500).send('Server error!')
   }
-
-  saltThenHash(newPassword)
-
-  await user.save()
-  res.send(`${user.name} uspesno ste promenili lozinku!`)
 })
 
 module.exports = router
