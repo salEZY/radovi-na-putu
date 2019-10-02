@@ -6,7 +6,7 @@ const { JWT } = require('../utils/config')
 const { check, validationResult } = require('express-validator')
 
 const User = require('../models/User')
-const { sendEmail, saltThenHash } = require('../utils/helpers')
+const { sendEmail } = require('../utils/helpers')
 const auth = require('../utils/auth')
 
 // Test route
@@ -50,7 +50,7 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'Korisnik vec postoji' }] })
+          .json({ errors: [{ msg: 'Korisnik već postoji' }] })
       }
 
       user = new User({
@@ -59,7 +59,8 @@ router.post(
         password
       })
       // Encrypt password
-      saltThenHash(user, password)
+      const salt = await bcrypt.genSalt(10)
+      user.password = await bcrypt.hash(password, salt)
 
       await user.save()
       sendEmail(email, 'register')
@@ -102,7 +103,7 @@ router.post(
 
       if (!user) {
         return res.status(400).json({
-          errors: [{ msg: 'Uneli ste pogresno korisnicko ime ili password' }]
+          errors: [{ msg: 'Uneli ste pogrešno korisničko ime ili password' }]
         })
       }
 
@@ -110,7 +111,7 @@ router.post(
 
       if (!isMatch) {
         return res.status(400).json({
-          errors: [{ msg: 'Uneli ste pogresno korisnicko ime ili password' }]
+          errors: [{ msg: 'Uneli ste pogrešno korisničko ime ili password' }]
         })
       }
 
@@ -141,16 +142,17 @@ router.put('/reset-password', async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim mail-om' }] })
+        .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim email-om' }] })
     }
 
     const newPass = Math.floor(Math.random() * 10000000).toString()
     sendEmail(user.email, 'reset', newPass)
 
-    saltThenHash(user, newPass)
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(newPass, salt)
 
     await user.save()
-    res.send(`Nov password vam je poslat na adresu: ${user.email}`)
+    res.send(`Nov password Vam je poslat na adresu: ${user.email}`)
   } catch (err) {
     console.log(err.message)
     res.status(500).send('Server error!')
@@ -175,10 +177,11 @@ router.put('/change-password', auth, async (req, res) => {
   try {
     const user = await User.findById({ _id: req.user.id })
 
-    saltThenHash(user, newPassword)
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(newPassword, salt)
 
     await user.save()
-    res.send(`${user.name} uspesno ste promenili lozinku!`)
+    res.send(`${user.name} uspešno ste promenili lozinku!`)
   } catch (err) {
     console.log(err.message)
     res.status(500).send('Server error!')
