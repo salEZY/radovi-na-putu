@@ -7,6 +7,7 @@ const { check, validationResult } = require('express-validator')
 
 const User = require('../models/User')
 const { sendEmail } = require('../utils/helpers')
+const auth = require('../utils/auth')
 
 // Test route
 router.get('/', (req, res) => res.send('User route!'))
@@ -39,7 +40,7 @@ router.post(
     if (password !== password2) {
       return res
         .status(400)
-        .json({ errors: [{ msg: 'Passwords do not match' }] })
+        .json({ errors: [{ msg: 'Niste uneli istu lozinku dva puta' }] })
     }
 
     try {
@@ -49,7 +50,7 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'User already exists' }] })
+          .json({ errors: [{ msg: 'Korisnik vec postoji' }] })
       }
 
       user = new User({
@@ -101,17 +102,17 @@ router.post(
       let user = await User.findOne({ email })
 
       if (!user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] })
+        return res.status(400).json({
+          errors: [{ msg: 'Uneli ste pogresno korisnicko ime ili password' }]
+        })
       }
 
       const isMatch = await bcrypt.compare(password, user.password)
 
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] })
+        return res.status(400).json({
+          errors: [{ msg: 'Uneli ste pogresno korisnicko ime ili password' }]
+        })
       }
 
       const payload = {
@@ -130,5 +131,59 @@ router.post(
     }
   }
 )
+
+// Reset password
+router.put('/reset-password', async (req, res) => {
+  const email = req.body.email
+
+  const user = await User.findOne({ email })
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim mail-om' }] })
+  }
+
+  const newPass = Math.floor(Math.random() * 10000000).toString()
+  sendEmail(user.email, 'reset', newPass)
+
+  const salt = await bcrypt.genSalt(10)
+  user.password = await bcrypt.hash(newPass, salt)
+
+  await user.save()
+  res.send(`Nov password vam je poslat na adresu: ${user.email}`)
+})
+
+// Change password
+router.put('/change-password', auth, async (req, res) => {
+  const { password, password2, newPassword } = req.body
+
+  if (password !== password2) {
+    return res
+      .status(400)
+      .json({ errors: [{ msg: 'Niste uneli istu lozinku dva puta' }] })
+  }
+
+  if (!newPassword) {
+    return res
+      .status(400)
+      .json({ errors: [{ msg: 'Molimo unesite novu lozinku' }] })
+  }
+
+  const user = await User.findOne({ email })
+
+  const isMatch = await bcrypt.compare(password, user.password)
+
+  if (!isMatch) {
+    return res.status(400).json({
+      errors: [{ msg: 'Uneli ste pogresnu lozinku' }]
+    })
+  }
+
+  user.password = await bcrypt.hash(newPassword, salt)
+
+  await user.save()
+  res.send(`${user.name} uspesno ste promenili lozinku!`)
+})
 
 module.exports = router

@@ -19,7 +19,7 @@ const createMailOptions = (email, type, info) => {
       return {
         ...mailOptions,
         subject: 'Promena šifre!',
-        html: `<h1 style="color: teal;margin-bottom: 10px;">Radovi Na Putu</h1><p>Vaša trenutna šifra je ${info}. Molimo da je promenite u aplikaciji</p>`
+        html: `<h1 style="color: teal;margin-bottom: 10px;">Radovi Na Putu</h1><p>Vaša nova šifra je ${info}. Molimo da je promenite u aplikaciji</p>`
       }
     default:
       return null
