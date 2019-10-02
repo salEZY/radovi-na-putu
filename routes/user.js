@@ -59,7 +59,7 @@ router.post(
         password
       })
       // Encrypt password
-      saltThenHash(password)
+      saltThenHash(user, password)
 
       await user.save()
       sendEmail(email, 'register')
@@ -147,7 +147,7 @@ router.put('/reset-password', async (req, res) => {
     const newPass = Math.floor(Math.random() * 10000000).toString()
     sendEmail(user.email, 'reset', newPass)
 
-    saltThenHash(newPass)
+    saltThenHash(user, newPass)
 
     await user.save()
     res.send(`Nov password vam je poslat na adresu: ${user.email}`)
