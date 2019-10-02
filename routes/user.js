@@ -6,8 +6,9 @@ const { JWT } = require('../utils/config')
 const { check, validationResult } = require('express-validator')
 
 const User = require('../models/User')
+const { sendEmail } = require('../utils/helpers')
 
-// Test route 
+// Test route
 router.get('/', (req, res) => res.send('User route!'))
 
 // Register route
@@ -33,8 +34,8 @@ router.post(
 
     if (password !== password2) {
       return res
-          .status(400)
-          .json({ errors: [{ msg: 'Passwords do not match' }] })
+        .status(400)
+        .json({ errors: [{ msg: 'Passwords do not match' }] })
     }
 
     try {
@@ -57,6 +58,7 @@ router.post(
       user.password = await bcrypt.hash(password, salt)
 
       await user.save()
+      sendEmail(email, 'register')
       // JWT
       const payload = {
         user: {
