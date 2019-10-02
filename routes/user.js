@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const { JWT } = require('../utils/config')
 const { check, validationResult } = require('express-validator')
 
 const User = require('../models/User')
-const { sendEmail } = require('../utils/helpers')
+const { sendEmail, saltThenHash } = require('../utils/helpers')
 const auth = require('../utils/auth')
 
 // Test route
@@ -59,8 +59,7 @@ router.post(
         password
       })
       // Encrypt password
-      const salt = await bcrypt.genSalt(10)
-      user.password = await bcrypt.hash(password, salt)
+      saltThenHash(password)
 
       await user.save()
       sendEmail(email, 'register')
@@ -147,8 +146,7 @@ router.put('/reset-password', async (req, res) => {
   const newPass = Math.floor(Math.random() * 10000000).toString()
   sendEmail(user.email, 'reset', newPass)
 
-  const salt = await bcrypt.genSalt(10)
-  user.password = await bcrypt.hash(newPass, salt)
+  saltThenHash(newPass)
 
   await user.save()
   res.send(`Nov password vam je poslat na adresu: ${user.email}`)
@@ -180,7 +178,7 @@ router.put('/change-password', auth, async (req, res) => {
     })
   }
 
-  user.password = await bcrypt.hash(newPassword, salt)
+  saltThenHash(newPassword)
 
   await user.save()
   res.send(`${user.name} uspesno ste promenili lozinku!`)

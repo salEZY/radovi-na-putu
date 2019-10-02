@@ -1,4 +1,5 @@
 const nodeMailer = require('nodemailer')
+const bcrypt = require('bcryptjs')
 
 const { emailPw } = require('./config')
 
@@ -41,6 +42,12 @@ const sendEmail = (email, type, info) => {
   })
 }
 
+const saltThenHash = async password => {
+  const salt = await bcrypt.genSalt(10)
+  user.password = await bcrypt.hash(password, salt)
+}
+
 module.exports = {
-  sendEmail
+  sendEmail,
+  saltThenHash
 }
