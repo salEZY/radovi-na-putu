@@ -161,9 +161,9 @@ router.put('/reset-password', async (req, res) => {
 })
 
 // Change password
-router.put('/change-password', auth, async (req, res) => {
+router.put('/change-password/:id', auth, async (req, res) => {
   const { password, password2, newPassword } = req.body
-
+  const id = req.params.id
   if (password !== password2) {
     return res
       .status(400)
@@ -176,7 +176,7 @@ router.put('/change-password', auth, async (req, res) => {
       .json({ errors: [{ msg: 'Molimo unesite novu lozinku' }] })
   }
   try {
-    const user = await User.findById({ _id: req.user.id })
+    const user = await User.findById({ _id: id })
 
     const salt = await bcrypt.genSalt(10)
     user.password = await bcrypt.hash(newPassword, salt)
@@ -190,9 +190,10 @@ router.put('/change-password', auth, async (req, res) => {
 })
 
 // Delete account
-router.delete('/delete-account', auth, async (req, res) => {
+router.delete('/delete-account/:id', auth, async (req, res) => {
+  const id = req.params.id
   try {
-    await User.findOneAndRemove({ _id: req.user.id })
+    await User.findOneAndRemove({ _id: id })
 
     res.send('Vaš  nalog je obrisan!')
   } catch (err) {
