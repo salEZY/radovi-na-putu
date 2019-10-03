@@ -125,6 +125,7 @@ router.post(
         if (err) throw err
         res.json({ token })
       })
+      res.redirect('/')
     } catch (err) {
       console.log(err.message)
       res.status(500).send('Server error!')
@@ -140,9 +141,9 @@ router.put('/reset-password', async (req, res) => {
     const user = await User.findOne({ email })
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: 'Ne postoji korisnik sa odabranim email-om' }] })
+      return res.status(400).json({
+        errors: [{ msg: 'Ne postoji korisnik sa odabranim email-om' }]
+      })
     }
 
     const newPass = Math.floor(Math.random() * 10000000).toString()
@@ -182,6 +183,18 @@ router.put('/change-password', auth, async (req, res) => {
 
     await user.save()
     res.send(`${user.name} uspešno ste promenili lozinku!`)
+  } catch (err) {
+    console.log(err.message)
+    res.status(500).send('Server error!')
+  }
+})
+
+// Delete account
+router.delete('/delete-account', auth, async (req, res) => {
+  try {
+    await User.findOneAndRemove({ _id: req.user.id })
+
+    res.send('Vaš  nalog je obrisan!')
   } catch (err) {
     console.log(err.message)
     res.status(500).send('Server error!')
