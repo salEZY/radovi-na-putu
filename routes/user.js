@@ -161,7 +161,20 @@ router.put('/reset-password', async (req, res) => {
 })
 
 // Change password
-router.put('/change-password/:id', auth, async (req, res) => {
+router.put('/change-password/:id', [auth, [
+  check(
+    'password',
+    'Please enter the old password with 6 or more characters'
+  ).isLength({ min: 6 }),
+  check(
+    'password2',
+    'Please re-enter the old password with 6 or more characters'
+  ).isLength({ min: 6 }),
+  check(
+    'newPassword',
+    'Please re-enter the new password with 6 or more characters'
+  ).isLength({ min: 6 })
+]], async (req, res) => {
   const { password, password2, newPassword } = req.body
   const id = req.params.id
   if (password !== password2) {
