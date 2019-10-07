@@ -125,7 +125,6 @@ router.post(
         if (err) throw err
         res.json({ token })
       })
-      res.redirect('/')
     } catch (err) {
       console.log(err.message)
       res.status(500).send('Server error!')
@@ -161,46 +160,53 @@ router.put('/reset-password', async (req, res) => {
 })
 
 // Change password
-router.put('/change-password/:id', [auth, [
-  check(
-    'password',
-    'Please enter the old password with 6 or more characters'
-  ).isLength({ min: 6 }),
-  check(
-    'password2',
-    'Please re-enter the old password with 6 or more characters'
-  ).isLength({ min: 6 }),
-  check(
-    'newPassword',
-    'Please re-enter the new password with 6 or more characters'
-  ).isLength({ min: 6 })
-]], async (req, res) => {
-  const { password, password2, newPassword } = req.body
-  const id = req.params.id
-  if (password !== password2) {
-    return res
-      .status(400)
-      .json({ errors: [{ msg: 'Niste uneli istu lozinku dva puta' }] })
-  }
+router.put(
+  '/change-password/:id',
+  [
+    auth,
+    [
+      check(
+        'password',
+        'Please enter the old password with 6 or more characters'
+      ).isLength({ min: 6 }),
+      check(
+        'password2',
+        'Please re-enter the old password with 6 or more characters'
+      ).isLength({ min: 6 }),
+      check(
+        'newPassword',
+        'Please re-enter the new password with 6 or more characters'
+      ).isLength({ min: 6 })
+    ]
+  ],
+  async (req, res) => {
+    const { password, password2, newPassword } = req.body
+    const id = req.params.id
+    if (password !== password2) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: 'Niste uneli istu lozinku dva puta' }] })
+    }
 
-  if (!newPassword) {
-    return res
-      .status(400)
-      .json({ errors: [{ msg: 'Molimo unesite novu lozinku' }] })
-  }
-  try {
-    const user = await User.findById({ _id: id })
+    if (!newPassword) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: 'Molimo unesite novu lozinku' }] })
+    }
+    try {
+      const user = await User.findById({ _id: id })
 
-    const salt = await bcrypt.genSalt(10)
-    user.password = await bcrypt.hash(newPassword, salt)
+      const salt = await bcrypt.genSalt(10)
+      user.password = await bcrypt.hash(newPassword, salt)
 
-    await user.save()
-    res.send(`${user.name} uspešno ste promenili lozinku!`)
-  } catch (err) {
-    console.log(err.message)
-    res.status(500).send('Server error!')
+      await user.save()
+      res.send(`${user.name} uspešno ste promenili lozinku!`)
+    } catch (err) {
+      console.log(err.message)
+      res.status(500).send('Server error!')
+    }
   }
-})
+)
 
 // Delete account
 router.delete('/delete-account/:id', auth, async (req, res) => {
