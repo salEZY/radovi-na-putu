@@ -65,7 +65,15 @@ app.post(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    let { name, description, startLat, startLon, endLat, endLon, closed } = req.body
+    let {
+      name,
+      description,
+      startLat,
+      startLon,
+      endLat,
+      endLon,
+      closed
+    } = req.body
 
     name = name.replace(/[0-9]/g, '').trim()
 
@@ -82,7 +90,7 @@ app.post(
 
     try {
       let street = await Street.findOne({ name })
-      
+
       if (street) {
         return res
           .status(400)
@@ -94,7 +102,7 @@ app.post(
       // io.on('connection', socket => {
       //   socket.on('street add', street => {
       //     io.sockets.emit(`Ulica ${street.name} je dodata u spisak zatvorenih ulica!`)
-      //   }) 
+      //   })
       // })
       res.send(`${street.name} dodat!`)
     } catch (err) {
